@@ -1,0 +1,91 @@
+var AWS = require('aws-sdk');
+var iotdata = new AWS.IotData({endpoint:"a3jwlzur1lbx3d-ats.iot.us-east-1.amazonaws.com"});
+
+exports.handler = function(event, context, callback) {
+    console.log("Alcohol Purchased: " + event.alcohol_purchased.toString() + " Tobacco Purchased: " + event.tobacco_purchased.toString() + " Age: " + event.tobacco_purchased.toString());
+    
+    if(event.confidence >= 95) {
+        if(event.tobacco_purchased > 0 && event.age < 21) {
+            var postData = JSON.stringify({ transaction_id: event.transaction_id, command: "error (minor)"});
+            var params = {
+                topic: 'topic_1',
+                payload: postData,
+                qos: 0 };
+            iotdata.publish(params, function(err, data) {
+                if(err) {
+                    console.log("Error occured : ",err);
+                }
+                else{
+                    console.log("success...");
+                }
+            }); 
+        } //tobacco purchased, but age not above 21
+    
+        else if(event.alcohol_purchased > 0 && event.tobacco_purchased == 0 && event.age < 18){
+            var postData = JSON.stringify({ transaction_id: event.transaction_id, command: "error (minor)"});
+            var params = {
+                topic: 'topic_1',
+                payload: postData,
+                qos: 0 };
+            iotdata.publish(params, function(err, data) {
+                if(err) {
+                    console.log("Error occured : ",err);
+                }
+                else{
+                    console.log("success...");
+                }
+            });
+        } //alcohol purchased but age not above 18
+    
+        
+        else if (event.alcohol_purchased > 0 && event.tobacco_purchased == 0 && event.age > 18) {
+            var postData = JSON.stringify({ transaction_id: event.transaction_id, command: "identity check success... loading payment"});
+            var params = {
+                topic: 'topic_1',
+                payload: postData,
+                qos: 0 };
+            iotdata.publish(params, function(err, data) {
+                if(err) {
+                    console.log("Error occured : ",err);
+                }
+                else{
+                    console.log("success...");
+                }
+            });
+        } //success (alcohol)
+        
+        else if (event.tobacco_purchased > 0 && event.age > 21) {
+            var postData = JSON.stringify({ transaction_id: event.transaction_id, command: "identity check success... loading payment"});
+            var params = {
+                topic: 'topic_1',
+                payload: postData,
+                qos: 0 };
+            iotdata.publish(params, function(err, data) {
+                if(err) {
+                    console.log("Error occured : ",err);
+                }
+                else{
+                    console.log("success...");
+                }
+            });
+        } // success (tobacco)
+    }
+
+    else if(event.confidence < 95) {
+        var postData = JSON.stringify({ transaction_id: event.transaction_id, command: "error (low confidence)... pls try again"});
+        var params = {
+            topic: 'topic_1',
+            payload: postData,
+            qos: 0 };
+        iotdata.publish(params, function(err, data) {
+            if(err) {
+                console.log("Error occured : ",err);
+            }
+            else{
+                console.log("success...");
+            }
+        });
+    } // error no image
+
+    callback();
+};

@@ -14,8 +14,8 @@ var tobaccoQty = randomIntT; //stimulate obtaining POS system output
 console.log("Number of tobacco to purchase from POS system is", randomIntT);
 
 AWS.config.update({
-  accessKeyId: "AKIA2I7GWLT3M6YMHRPJ",
-  secretAccessKey: "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",
+  accessKeyId: "private",
+  secretAccessKey: "private",
   region: "us-east-1",
 }); //access keys to allow access to AWS account
 
